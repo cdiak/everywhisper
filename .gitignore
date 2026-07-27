@@ -1,0 +1,7 @@
+# Local build artifacts (install places binary in ~/.local/bin)
+/everywhisper
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/
