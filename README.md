@@ -16,22 +16,74 @@ No cloud API. No Raycast / Hammerspoon / Keyboard Maestro. One small native help
 |------|--------|
 | macOS | Apple Silicon or Intel; tested on recent macOS |
 | [Xcode Command Line Tools](https://developer.apple.com/xcode/) | for `swiftc` (build once) |
-| [`whisper-cli`](https://github.com/ggerganov/whisper.cpp) | e.g. `brew install whisper-cpp` |
-| A Whisper model file | e.g. `ggml-base.en.bin` from whisper.cpp releases |
+| [`whisper-cli`](https://github.com/ggml-org/whisper.cpp) | e.g. `brew install whisper-cpp` |
+| A GGML Whisper model (`.bin`) | **not** included here — download separately (below) |
 
 **ffmpeg is not required** — audio is captured as 16 kHz mono WAV.
 
-## Install
+everywhisper does **not** download model weights for you. You install `whisper-cli`, fetch one GGML model file, then run `./install.sh`.
+
+## Get `whisper-cli` and a model
+
+### 1. Install the CLI
+
+```bash
+brew install whisper-cpp
+```
+
+That provides `whisper-cli`. Homebrew does **not** ship the speech models ([formula notes](https://github.com/Homebrew/homebrew-core/blob/master/Formula/w/whisper-cpp.rb)).
+
+### 2. Download a GGML model
+
+Official model files for whisper.cpp:
+
+| Source | URL |
+|--------|-----|
+| Hugging Face (primary) | [huggingface.co/ggerganov/whisper.cpp](https://huggingface.co/ggerganov/whisper.cpp/tree/main) |
+| Mirror | [ggml.ggerganov.com](https://ggml.ggerganov.com/) |
+| Upstream project | [github.com/ggml-org/whisper.cpp](https://github.com/ggml-org/whisper.cpp) |
+
+**Recommended starter (English, ~142 MB):** `ggml-base.en.bin` — good balance of speed and quality on a MacBook Air.
+
+```bash
+mkdir -p ~/.cache/whisper
+curl -fL -o ~/.cache/whisper/ggml-base.en.bin \
+  "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin"
+```
+
+Other common English models on the same Hugging Face repo (pick one):
+
+| File | Rough size | Notes |
+|------|------------|--------|
+| `ggml-tiny.en.bin` | ~75 MB | Fastest, lower accuracy |
+| `ggml-base.en.bin` | ~142 MB | Good default |
+| `ggml-small.en.bin` | ~466 MB | Better accuracy, slower |
+| `ggml-medium.en.bin` | ~1.5 GB | High accuracy |
+| `ggml-large-v3.bin` | ~3 GB | Best quality (multilingual; drop `.en` for other languages) |
+
+Direct download pattern (replace the filename):
+
+```bash
+curl -fL -o ~/.cache/whisper/ggml-small.en.bin \
+  "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.en.bin"
+```
+
+You only need **one** `.bin` file. Point `WHISPER_MODEL` at its full path (or place it where install can auto-discover it — see [Configuration](#configuration)).
+
+## Install everywhisper
 
 ```bash
 git clone https://github.com/cdiak/everywhisper.git
 cd everywhisper
 
-# Point at your model if it is not in a default search path:
-export WHISPER_MODEL="$HOME/path/to/ggml-base.en.bin"
+export WHISPER_MODEL="$HOME/.cache/whisper/ggml-base.en.bin"
+# optional if whisper-cli is not on PATH:
+# export WHISPER_CLI="$(brew --prefix)/bin/whisper-cli"
 
 ./install.sh
 ```
+
+If `WHISPER_MODEL` is already in a [default search path](#configuration), you can omit the export.
 
 This builds `~/.local/bin/everywhisper` and registers a login LaunchAgent.
 
@@ -94,7 +146,7 @@ WHISPER_LANGUAGE=en \
 
 ```bash
 ./build.sh
-export WHISPER_MODEL=/path/to/ggml-base.en.bin
+export WHISPER_MODEL="$HOME/.cache/whisper/ggml-base.en.bin"
 ./everywhisper
 ```
 
