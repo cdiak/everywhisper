@@ -32,12 +32,13 @@ if [[ -z "${WHISPER_CLI:-}" ]]; then
   fi
 fi
 
+# Resolve a whisper model: env → common locations
 if [[ -z "${WHISPER_MODEL:-}" ]]; then
   for candidate in \
-    "${HOME}/Development/Models/whisper/ggml-base.en.bin" \
-    "${HOME}/models/whisper/ggml-base.en.bin" \
     "${HOME}/.cache/whisper/ggml-base.en.bin" \
-    "/opt/homebrew/share/whisper-cpp/ggml-base.en.bin"
+    "${HOME}/models/whisper/ggml-base.en.bin" \
+    "/opt/homebrew/share/whisper-cpp/ggml-base.en.bin" \
+    "/usr/local/share/whisper-cpp/ggml-base.en.bin"
   do
     if [[ -f "$candidate" ]]; then
       WHISPER_MODEL="$candidate"
@@ -48,9 +49,9 @@ fi
 WHISPER_MODEL="${WHISPER_MODEL:-}"
 WHISPER_LANGUAGE="${WHISPER_LANGUAGE:-en}"
 
-if [[ -z "$WHISPER_MODEL" ]]; then
+if [[ ! -f "$WHISPER_MODEL" ]]; then
   echo "warning: no whisper model found. Set WHISPER_MODEL to a ggml/gguf model path." >&2
-  echo "  example: WHISPER_MODEL=\$HOME/models/ggml-base.en.bin ./install.sh" >&2
+  echo "  example: WHISPER_MODEL=\$HOME/.cache/whisper/ggml-base.en.bin ./install.sh" >&2
 fi
 
 # Escape XML special chars in paths for plist

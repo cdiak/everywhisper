@@ -18,7 +18,7 @@ Copy everything inside the block below and paste it into a coding agent (Grok Bu
 Set up everywhisper: system-wide local Whisper dictation on this Mac. Do every step yourself in the shell; do not tell me what to run. Stay on macOS only.
 
 Repo: https://github.com/cdiak/everywhisper
-Install dir: ~/Development/Projects/everywhisper (create parent dirs if needed)
+Source dir: ~/.local/src/everywhisper unless I name another folder (create parent dirs if needed). It only holds the source to build from; install.sh copies everything it runs into ~/.local.
 Model path: ~/.cache/whisper/ggml-base.en.bin
 Binary: ~/.local/bin/everywhisper
 LaunchAgent label: com.cdiak.everywhisper
@@ -29,9 +29,10 @@ Steps:
    - Ensure Xcode Command Line Tools (swiftc) are available. If missing, run xcode-select --install and wait / guide only if the GUI installer blocks non-interactive completion.
    - Ensure Homebrew is available (brew). If missing, install from https://brew.sh or report that brew is required.
 2. Clone
-   - If ~/Development/Projects/everywhisper is already a git clone of this repo, git pull --ff-only origin main (or the default branch).
-   - If that path exists but is not this repo, move it to ~/Development/Projects/everywhisper.bak.<timestamp>.
-   - Otherwise: git clone https://github.com/cdiak/everywhisper.git ~/Development/Projects/everywhisper
+   - Call the source dir SRC.
+   - If SRC is already a git clone of this repo, git pull --ff-only origin main (or the default branch).
+   - If SRC exists but is not this repo, move it to SRC.bak.<timestamp>.
+   - Otherwise: git clone https://github.com/cdiak/everywhisper.git SRC
 3. whisper-cli
    - If whisper-cli is not on PATH, brew install whisper-cpp.
    - Resolve WHISPER_CLI to the full path of whisper-cli (command -v whisper-cli or $(brew --prefix)/bin/whisper-cli).
@@ -42,7 +43,7 @@ Steps:
          "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin"
    - Verify the file exists and is a normal size (~142MB for base.en).
 5. Install the helper
-   - cd ~/Development/Projects/everywhisper
+   - cd SRC
    - export WHISPER_CLI and WHISPER_MODEL (model = ~/.cache/whisper/ggml-base.en.bin)
    - ./install.sh
 6. Verify process
@@ -68,7 +69,7 @@ After the agent finishes, grant **Microphone** and **Accessibility** if prompted
 
 | Step | Result |
 |------|--------|
-| Clone / pull | `~/Development/Projects/everywhisper` at latest `main` |
+| Clone / pull | `~/.local/src/everywhisper` (or your folder) at latest `main` |
 | `brew install whisper-cpp` | `whisper-cli` on PATH |
 | `curl` model | `~/.cache/whisper/ggml-base.en.bin` (~142 MB, English) |
 | `./install.sh` | builds `~/.local/bin/everywhisper`, registers login LaunchAgent |
@@ -195,10 +196,10 @@ Log file: `~/Library/Logs/everywhisper.log`
 
 Model search order when `WHISPER_MODEL` is unset:
 
-- `~/Development/Models/whisper/ggml-base.en.bin`
-- `~/models/whisper/ggml-base.en.bin`
 - `~/.cache/whisper/ggml-base.en.bin`
+- `~/models/whisper/ggml-base.en.bin`
 - `/opt/homebrew/share/whisper-cpp/ggml-base.en.bin`
+- `/usr/local/share/whisper-cpp/ggml-base.en.bin`
 
 Example:
 

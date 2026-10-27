@@ -31,7 +31,7 @@ struct Config {
         let model =
             env["WHISPER_MODEL"]
             ?? discoverModel(home: home)
-            ?? "\(home)/models/whisper/ggml-base.en.bin"
+            ?? "\(home)/.cache/whisper/ggml-base.en.bin"
 
         let language = env["WHISPER_LANGUAGE"] ?? "en"
         let threads = Int(env["WHISPER_THREADS"] ?? "")
@@ -47,16 +47,12 @@ struct Config {
 
     private static func discoverModel(home: String) -> String? {
         let candidates = [
-            "\(home)/Development/Models/whisper/ggml-base.en.bin",
-            "\(home)/models/whisper/ggml-base.en.bin",
             "\(home)/.cache/whisper/ggml-base.en.bin",
+            "\(home)/models/whisper/ggml-base.en.bin",
             "/opt/homebrew/share/whisper-cpp/ggml-base.en.bin",
             "/usr/local/share/whisper-cpp/ggml-base.en.bin",
         ]
-        for path in candidates where FileManager.default.fileExists(atPath: path) {
-            return path
-        }
-        return nil
+        return candidates.first { FileManager.default.fileExists(atPath: $0) }
     }
 
     private static func which(_ cmd: String) -> String? {
